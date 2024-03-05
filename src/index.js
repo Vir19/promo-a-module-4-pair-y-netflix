@@ -1,6 +1,6 @@
-const express = require('express');
-const cors = require('cors');
-const mysql = require ('mysql2/promise');
+const express = require("express");
+const cors = require("cors");
+const mysql = require("mysql2/promise");
 
 // create and config server
 const server = express();
@@ -16,10 +16,10 @@ server.listen(serverPort, () => {
 //Conectar con la base de datos
 async function getConnection() {
   const connection = await mysql.createConnection({
-    host: 'localhost',
-    database: 'Netflix',
-    user: 'root',
-    password: 'maialen',
+    host: "localhost",
+    database: "Netflix",
+    user: "root",
+    password: "Rjpcp1993",
   });
   await connection.connect();
 
@@ -32,13 +32,23 @@ async function getConnection() {
 
 //Endpoint
 
-server.get ('/movies', async (req, res) => {
+server.get("/movies", async (req, res) => {
   const connection = await getConnection();
-  const [results] = await connection.query('SELECT * FROM movies');
+
+  const drama = req.query.genre;
+  console.log(drama);
+  const [results] = await connection.query("SELECT * FROM movies");
   res.json({
     success: true,
-    movies:  results
+    movies: results,
   });
   connection.close;
-}
-);
+});
+
+//crear servidor de estáticos
+
+const staticServerPathWeb = "./src/public-react";
+server.use(express.static(staticServerPathWeb));
+
+const staticServerPathImages = "./src/public-movies-images";
+server.use(express.static(staticServerPathImages));
