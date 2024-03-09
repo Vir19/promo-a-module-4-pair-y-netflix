@@ -17,9 +17,9 @@ server.listen(serverPort, () => {
 async function getConnection() {
   const connection = await mysql.createConnection({
     host: "localhost",
-    database: "Netflix",
+    database: "netflix",
     user: "root",
-    password: "Rjpcp1993",
+    password: "VirGiNiA5619?",
   });
   await connection.connect();
 
@@ -34,15 +34,33 @@ async function getConnection() {
 
 server.get("/movies", async (req, res) => {
   const connection = await getConnection();
+  if (!req.query.genre) {
+    const queryGetMovieGenre =   `SELECT * FROM netflix.movies`
+    const [results] = await connection.query(
+      queryGetMovieGenre);
+      res.json({
+        success: true,
+        movies: results,
+      });
+      console.log(results);
+      connection.close;
+  }
+  else {
+    const genreFilterParam = req.query.genre;
+    const queryGetMovieGenre =   `SELECT * FROM netflix.movies
+    WHERE genre = ?;`
+    const [results] = await connection.query(
+      queryGetMovieGenre, [ genreFilterParam ]
+      );
+      res.json({
+        success: true,
+        movies: results,
+      });
+      console.log(results);
+      connection.close;
+  }
 
-  const drama = req.query.genre;
-  console.log(drama);
-  const [results] = await connection.query("SELECT * FROM movies");
-  res.json({
-    success: true,
-    movies: results,
-  });
-  connection.close;
+
 });
 
 //crear servidor de estáticos
