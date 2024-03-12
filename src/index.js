@@ -6,6 +6,7 @@ const mysql = require("mysql2/promise");
 const server = express();
 server.use(cors());
 server.use(express.json());
+server.set('view engine', 'ejs');
 
 // init express aplication
 const serverPort = 4000;
@@ -17,9 +18,9 @@ server.listen(serverPort, () => {
 async function getConnection() {
   const connection = await mysql.createConnection({
     host: "localhost",
-    database: "netflix",
+    database: "Netflix",
     user: "root",
-    password: "VirGiNiA5619?",
+    password: "maialen",
   });
   await connection.connect();
 
@@ -35,19 +36,18 @@ async function getConnection() {
 server.get("/movies", async (req, res) => {
   const connection = await getConnection();
   if (!req.query.genre) {
-    const queryGetMovieGenre =   `SELECT * FROM netflix.movies`
+    const queryGetMovieGenre =   `SELECT * FROM Netflix.movies`
     const [results] = await connection.query(
       queryGetMovieGenre);
       res.json({
         success: true,
         movies: results,
       });
-      console.log(results);
       connection.close;
   }
   else {
     const genreFilterParam = req.query.genre;
-    const queryGetMovieGenre =   `SELECT * FROM netflix.movies
+    const queryGetMovieGenre =   `SELECT * FROM Netflix.movies
     WHERE genre = ?;`
     const [results] = await connection.query(
       queryGetMovieGenre, [ genreFilterParam ]
@@ -56,11 +56,26 @@ server.get("/movies", async (req, res) => {
         success: true,
         movies: results,
       });
-      console.log(results);
       connection.close;
   }
 
 
+});
+
+server.get('/movie/:movieId', async (req, res) => { 
+
+  const foundMovie = `SELECT * FROM Netflix.movies
+	WHERE idmovies = ?;`
+
+  const movieId = req.params.movieId;
+
+  const connection = await getConnection();
+  const [result] = await connection.query (foundMovie, [movieId]);
+
+  connection.close;
+  console.log(result);
+  res.render('movie', result [0]);
+  
 });
 
 //crear servidor de estáticos
